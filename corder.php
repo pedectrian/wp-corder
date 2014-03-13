@@ -27,18 +27,18 @@ class Corder
         $this->wpdb = $wpdb;
 
         // Add custom post type
-        add_action( 'init', array( &$this, 'create_order_post_type') );
+        add_action( 'init', array( $this, 'create_order_post_type') );
 
         // Add custom post type list fields
-        add_filter( 'manage_edit-corder_order_columns', array( &$this, 'set_custom_edit_corder_order_columns' ));
-        add_action( 'manage_corder_order_posts_custom_column', array( &$this, 'custom_corder_order_column' ), 10, 2 );
+        add_filter( 'manage_edit-corder_order_columns', array( $this, 'set_custom_edit_corder_order_columns' ));
+        add_action( 'manage_corder_order_posts_custom_column', array( $this, 'custom_corder_order_column' ), 10, 2 );
 
         // Add custom post type edit meta box and set order title (Order #id)
-        add_action( 'save_post', array( &$this, 'save_corder_order_meta' ));
-        add_action( 'save_post', array( &$this, 'set_corder_order_title' ));
+        add_action( 'save_post', array( $this, 'save_corder_order_meta' ));
+        add_filter( 'wp_insert_post_data', array( $this, 'set_corder_order_title' ));
 
         // Remove all actions for custom post type except edit
-        add_filter( 'post_row_actions', array( &$this, 'remove_row_actions' ));
+        add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ));
     }
 
     /**
@@ -59,7 +59,7 @@ class Corder
                     'revisions',
                 ),
                 'menu_position' => 2,
-                'register_meta_box_cb' => array( &$this, 'corder_add_post_type_metabox' )
+                'register_meta_box_cb' => array( $this, 'corder_add_post_type_metabox' )
             )
         );
     }
@@ -106,11 +106,11 @@ class Corder
         }
 
         // Echo string or not found message
-        if ( $term && is_string( $term ) )
+        if ( $term && is_string( $term ) ) {
             echo $term;
-        else
-            _e( 'Unable to get client\'s ' . $column, 'corder' );
-
+        } else {
+            _e( 'Undefined value', 'corder' );
+        }
     }
 
     /**
@@ -145,15 +145,8 @@ class Corder
         foreach( $client as $key => $value ) { // cycle through the $quote_post_meta array
             // if( $post->post_type == 'revision' ) return; // don't store custom data twice
             $value = implode(',', (array)$value); // if $value is an array, make it a CSV (unlikely)
-            if( get_post_meta( $post_id, $key, FALSE ) ) { // if the custom field already has a value
-                update_post_meta( $post_id, $key, $value);
-            } else { // if the custom field doesn't have a value
-                add_post_meta( $post_id, $key, $value );
-            }
 
-            if( !$value ) { // delete if blank
-                delete_post_meta( $post_id, $key );
-            }
+            update_post_meta( $post_id, $key, $value);
         }
 
         return true;
@@ -161,12 +154,18 @@ class Corder
 
     /**
      * Sets corder_order title on save action
-     * @param $post_id
      */
-    function set_corder_order_title( $post_id ){
-        $title = 'Order #' . $post_id;
-        $where = array( 'ID' => $post_id );
-        $this->wpdb->update( $this->wpdb->posts, array( 'post_title' => $title ), $where );
+    function set_corder_order_title( $post ){
+
+        if(!isset($_GET['post_type']) || $_GET['post_type'] != 'corder_order' || $post['post_status'] != 'auto-draft') {
+            return $post;
+        }
+
+        $order_id = get_option( 'order_id', 0 ) + 1;
+        $post['post_title'] = "Order #{$order_id}";
+        update_option( 'order_id', $order_id );
+
+        return $post;
     }
 
     /**
@@ -192,7 +191,7 @@ class Corder
      * Adds the corder_order meta box
      */
     function corder_add_post_type_metabox() {
-        add_meta_box( 'corder_metabox', 'Order', array( &$this, 'corder_metabox' ), 'corder_order', 'normal' );
+        add_meta_box( 'corder_metabox', 'Order', array( $this, 'corder_metabox' ), 'corder_order', 'normal' );
     }
 
     /**
@@ -202,7 +201,7 @@ class Corder
         global $post;
 
         // Noncename needed to verify where the data originated
-        echo '<input type="hidden" name="corder_noncename" id="corder_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
+        wp_nonce_field(plugin_basename(__FILE__), 'corder_noncename');
 
         // Get the data if its already been entered
         $prefix = 'corder_client';
@@ -218,28 +217,28 @@ class Corder
         <div class="width_full p_box">
             <p>
                 <label>Client Name<br>
-                    <input type="text" name="corder_client_name" class="widefat" value="<?php echo $corder_client_name; ?>">
+                    <input type="text" name="corder_client_name" class="widefat" value="<?php echo esc_attr($corder_client_name); ?>">
                 </label>
             </p>
             <p>
                 <label>Client Phone<br>
-                    <input type="phone" name="corder_client_phone" class="widefat" value="<?php echo $corder_client_phone; ?>">
+                    <input type="phone" name="corder_client_phone" class="widefat" value="<?php echo esc_attr($corder_client_phone); ?>">
                 </label>
             </p>
             <p>
                 <label>Client Town<br>
-                    <textarea name="corder_client_town" class="widefat"><?php echo $corder_client_town; ?></textarea>
+                    <textarea name="corder_client_town" class="widefat"><?php echo esc_attr($corder_client_town); ?></textarea>
                 </label>
             </p>
             <p>
                 <label>Client Full Address<br>
-                    <textarea name="corder_client_full_address" class="widefat"><?php echo $corder_client_fulladdress; ?></textarea>
+                    <textarea name="corder_client_full_address" class="widefat"><?php echo esc_attr($corder_client_fulladdress); ?></textarea>
                 </label>
             </p>
             <p>
                 <label>Client Delivery Type<br></label>
-                <label><input type="radio" name="corder_client_delivery_type" value="1" <?php echo $corder_client_delivery_type == 1 ? 'checked' : ''; ?> /> Самовывоз<br/></label>
-                <label><input type="radio" name="corder_client_delivery_type" value="2" <?php echo $corder_client_delivery_type == 2 ? 'checked' : ''; ?> /> Курьерская доставка</label>
+                <label><input type="radio" name="corder_client_delivery_type" value="1" <?php checked($corder_client_delivery_type, 1); ?> /> Самовывоз<br/></label>
+                <label><input type="radio" name="corder_client_delivery_type" value="2" <?php checked($corder_client_delivery_type, 2); ?> /> Курьерская доставка</label>
             </p>
         </div>
     <?php
