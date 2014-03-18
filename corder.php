@@ -246,7 +246,9 @@ class Corder
 
     public function getOrderForm() {
 
-        if( isset($_POST['corder_noncename']) && wp_verify_nonce( $_POST['corder_noncename'], plugin_basename(__FILE__) ) ) {
+        $processed = '';
+
+        if( !isset($_POST['processed']) && isset($_POST['corder_noncename']) && wp_verify_nonce( $_POST['corder_noncename'], plugin_basename(__FILE__) ) ) {
             $post = array(
                 'post_status' => 'publish',
                 'post_type' => 'corder_order',
@@ -275,23 +277,24 @@ class Corder
                 update_post_meta( $post_id, $key, $value);
             }
 
-
+            $processed = "<input type='hidden' name='processed' value='1'>";
             update_option( 'order_id', $order_id );
         }
 
         ?>
 
         <form method="POST" class="client-order-form">
+            <?php echo $processed ?>
             <?php wp_nonce_field(plugin_basename(__FILE__), 'corder_noncename'); ?>
             <label class="f-label">ФИО</label>
             <input class="f-text" type="text" name="corder_client_name" placeholder="Иванова Мария Сергеевна">
             <label class="f-label">Полный адрес (с индексом)</label>
             <input class="f-text" type="text" name="corder_client_full_address" placeholder="142456, Москва, ул. Мира, д. 3, кв. 11">
             <label class="f-label">Телефон</label>
-            <input class="f-text" type="text" name="corder_client_name" placeholder="89123456789">
+            <input class="f-text" type="text" name="corder_client_phone" placeholder="89123456789">
 
             <p>
-                <label class="f-label">Тип доставку<br></label>
+                <label class="f-label">Тип доставки<br></label>
                 <label><input type="radio" name="corder_client_delivery_type" value="1" checked /> Самовывоз<br/></label>
                 <label><input type="radio" name="corder_client_delivery_type" value="2" /> Курьерская доставка</label>
             </p>
