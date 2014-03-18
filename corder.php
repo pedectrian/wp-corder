@@ -197,7 +197,7 @@ class Corder
     /**
      * Meta box for corder_order edit page
      */
-    function corder_metabox() {
+    public function corder_metabox() {
         global $post;
 
         // Noncename needed to verify where the data originated
@@ -242,6 +242,64 @@ class Corder
             </p>
         </div>
     <?php
+    }
+
+    public function getOrderForm() {
+
+        if( isset($_POST['corder_noncename']) && wp_verify_nonce( $_POST['corder_noncename'], plugin_basename(__FILE__) ) ) {
+            $post = array(
+                'post_status' => 'publish',
+                'post_type' => 'corder_order',
+            );
+            $order_id = get_option( 'order_id', 0 ) + 1;
+            $post['post_title'] = "Order #{$order_id}";
+
+            $post_id = wp_insert_post( $post );
+
+            $prefix = $this->prefix . '_';
+
+            // Collect user data array
+            $client = array(
+                '_'.$prefix.'name'          =>  isset($_POST[$prefix.'name']) ? $_POST[$prefix.'name'] : '',
+                '_'.$prefix.'phone'         =>  isset($_POST[$prefix.'phone']) ? $_POST[$prefix.'phone'] : '',
+                '_'.$prefix.'town'          =>  isset($_POST[$prefix.'town']) ? $_POST[$prefix.'town'] : '',
+                '_'.$prefix.'full_address'   =>  isset($_POST[$prefix.'full_address']) ? $_POST[$prefix.'full_address'] : '',
+                '_'.$prefix.'delivery_type' =>  isset($_POST[$prefix.'delivery_type']) ? $_POST[$prefix.'delivery_type'] : '',
+            );
+
+            // add values as custom fields
+            foreach( $client as $key => $value ) { // cycle through the $quote_post_meta array
+                // if( $post->post_type == 'revision' ) return; // don't store custom data twice
+                $value = implode(',', (array)$value); // if $value is an array, make it a CSV (unlikely)
+
+                update_post_meta( $post_id, $key, $value);
+            }
+
+
+            update_option( 'order_id', $order_id );
+        }
+
+        ?>
+
+        <form method="POST" class="client-order-form">
+            <?php wp_nonce_field(plugin_basename(__FILE__), 'corder_noncename'); ?>
+            <label class="f-label">ФИО</label>
+            <input class="f-text" type="text" name="corder_client_name" placeholder="Иванова Мария Сергеевна">
+            <label class="f-label">Полный адрес (с индексом)</label>
+            <input class="f-text" type="text" name="corder_client_full_address" placeholder="142456, Москва, ул. Мира, д. 3, кв. 11">
+            <label class="f-label">Телефон</label>
+            <input class="f-text" type="text" name="corder_client_name" placeholder="89123456789">
+
+            <p>
+                <label class="f-label">Тип доставку<br></label>
+                <label><input type="radio" name="corder_client_delivery_type" value="1" checked /> Самовывоз<br/></label>
+                <label><input type="radio" name="corder_client_delivery_type" value="2" /> Курьерская доставка</label>
+            </p>
+
+            <div class="align-center"><button type="submit" class="btn" >Заказать</button></div>
+        </form>
+
+<?php
     }
 }
 
