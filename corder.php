@@ -79,6 +79,9 @@ class Corder
             'town'          => __( 'Client Town', 'corder' ),
             'full_address'  => __( 'Client Full Address', 'corder' ),
             'delivery_type' => __( 'Client Delivery Type', 'corder' ),
+            'comment'       => __( 'Comment', 'corder' ),
+            'amount'        => __( 'Amount', 'corder' ),
+            'price'        => __( 'Price', 'corder' ),
         );
 
         return array_merge($columns, $newColumns);
@@ -139,6 +142,9 @@ class Corder
             '_'.$prefix.'town'          =>  isset($_POST[$prefix.'town']) ? $_POST[$prefix.'town'] : '',
             '_'.$prefix.'full_address'   =>  isset($_POST[$prefix.'full_address']) ? $_POST[$prefix.'full_address'] : '',
             '_'.$prefix.'delivery_type' =>  isset($_POST[$prefix.'delivery_type']) ? $_POST[$prefix.'delivery_type'] : '',
+            '_'.$prefix.'price'         => isset($_POST[$prefix.'price']) ? $_POST[$prefix.'price'] : '',
+            '_'.$prefix.'comment' => isset($_POST[$prefix.'comment']) ? $_POST[$prefix.'comment'] : '',
+            '_'.$prefix.'amount' => isset($_POST[$prefix.'amount']) ? $_POST[$prefix.'amount'] : 1,
         );
 
         // add values as custom fields
@@ -208,8 +214,11 @@ class Corder
         $corder_client_name = get_post_meta($post->ID, '_'.$prefix.'_name', true);
         $corder_client_phone = get_post_meta($post->ID, '_'.$prefix.'_phone', true);
         $corder_client_town = get_post_meta($post->ID, '_'.$prefix.'_town', true);
-        $corder_client_fulladdress = get_post_meta($post->ID, '_'.$prefix.'_fulladdress', true);
+        $corder_client_fulladdress = get_post_meta($post->ID, '_'.$prefix.'_full_address', true);
         $corder_client_delivery_type = get_post_meta($post->ID, '_'.$prefix.'_delivery_type', true);
+        $corder_client_amount = get_post_meta($post->ID, '_'.$prefix.'_amount', true);
+        $corder_client_comment = get_post_meta($post->ID, '_'.$prefix.'_comment', true);
+        $corder_client_price = get_post_meta($post->ID, '_'.$prefix.'_price', true);
 
         // Echo out the field
         ?>
@@ -240,6 +249,21 @@ class Corder
                 <label><input type="radio" name="corder_client_delivery_type" value="1" <?php checked($corder_client_delivery_type, 1); ?> /> Самовывоз<br/></label>
                 <label><input type="radio" name="corder_client_delivery_type" value="2" <?php checked($corder_client_delivery_type, 2); ?> /> Курьерская доставка</label>
             </p>
+            <p>
+                <label>Amount<br>
+                    <input type="text" name="corder_client_amount" class="widefat" value="<?php echo esc_attr($corder_client_amount); ?>">
+                </label>
+            </p>
+            <p>
+                <label>Comment<br>
+                    <textarea name="corder_client_comment" class="widefat"><?php echo esc_attr($corder_client_comment); ?></textarea>
+                </label>
+            </p>
+            <p>
+                <label>Price<br>
+                    <input type="text" name="corder_client_price" class="widefat" value="<?php echo esc_attr($corder_client_price); ?>">
+                </label>
+            </p>
         </div>
     <?php
     }
@@ -262,11 +286,14 @@ class Corder
 
             // Collect user data array
             $client = array(
-                '_'.$prefix.'name'          =>  isset($_POST[$prefix.'name']) ? $_POST[$prefix.'name'] : '',
-                '_'.$prefix.'phone'         =>  isset($_POST[$prefix.'phone']) ? $_POST[$prefix.'phone'] : '',
-                '_'.$prefix.'town'          =>  isset($_POST[$prefix.'town']) ? $_POST[$prefix.'town'] : '',
-                '_'.$prefix.'full_address'   =>  isset($_POST[$prefix.'full_address']) ? $_POST[$prefix.'full_address'] : '',
-                '_'.$prefix.'delivery_type' =>  isset($_POST[$prefix.'delivery_type']) ? $_POST[$prefix.'delivery_type'] : '',
+                '_'.$prefix.'name'          => isset($_POST[$prefix.'name']) ? $_POST[$prefix.'name'] : '',
+                '_'.$prefix.'phone'         => isset($_POST[$prefix.'phone']) ? $_POST[$prefix.'phone'] : '',
+                '_'.$prefix.'town'          => isset($_POST[$prefix.'town']) ? $_POST[$prefix.'town'] : '',
+                '_'.$prefix.'full_address'  => isset($_POST[$prefix.'full_address']) ? $_POST[$prefix.'full_address'] : '',
+                '_'.$prefix.'delivery_type' => isset($_POST[$prefix.'delivery_type']) ? $_POST[$prefix.'delivery_type'] : '',
+                '_'.$prefix.'price'         => 3500,
+                '_'.$prefix.'comment' => isset($_POST[$prefix.'comment']) ? $_POST[$prefix.'comment'] : '',
+                '_'.$prefix.'amount' => 1,
             );
 
             // add values as custom fields
@@ -279,6 +306,8 @@ class Corder
 
             $processed = "<input type='hidden' name='processed' value='1'>";
             update_option( 'order_id', $order_id );
+
+            wp_mail( 'info@hair-remover-shop.ru', 'Новый заказ №' . ($order_id), 'На сайте создан новый заказ' );
         }
 
         ?>
@@ -292,7 +321,8 @@ class Corder
             <input class="f-text" type="text" name="corder_client_full_address" placeholder="142456, Москва, ул. Мира, д. 3, кв. 11">
             <label class="f-label">Телефон</label>
             <input class="f-text" type="text" name="corder_client_phone" placeholder="89123456789">
-
+            <label class="f-label">Комментарий</label>
+            <input class="f-text" type="text" name="corder_client_comment" placeholder="">
             <p>
                 <label class="f-label">Тип доставки<br></label>
                 <label><input type="radio" name="corder_client_delivery_type" value="1" checked /> Самовывоз<br/></label>
