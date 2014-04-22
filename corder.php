@@ -314,6 +314,11 @@ class Corder
 
         <form method="POST" class="client-order-form">
             <?php echo $processed ?>
+            <?php if($processed != '') : ?>
+                <script>
+                    alert('Спасибо! Ваш заказ был принят. Мы свяжемся с вами в ближайшее время.');
+                </script>
+            <?php endif; ?>
             <?php wp_nonce_field(plugin_basename(__FILE__), 'corder_noncename'); ?>
             <label class="f-label">ФИО</label>
             <input class="f-text" type="text" name="corder_client_name" placeholder="Иванова Мария Сергеевна">
