@@ -76,12 +76,12 @@ class Corder
         $newColumns = array(
             'name'          => __( 'Client Name', 'corder' ),
             'phone'         => __( 'Client Phone', 'corder' ),
-            'town'          => __( 'Client Town', 'corder' ),
+            'email'         => __( 'Client Email', 'corder' ),
             'full_address'  => __( 'Client Full Address', 'corder' ),
             'delivery_type' => __( 'Client Delivery Type', 'corder' ),
             'comment'       => __( 'Comment', 'corder' ),
             'amount'        => __( 'Amount', 'corder' ),
-            'price'        => __( 'Price', 'corder' ),
+//            'price'         => __( 'Price', 'corder' ),
         );
 
         return array_merge($columns, $newColumns);
@@ -112,7 +112,7 @@ class Corder
         if ( $term && is_string( $term ) ) {
             echo $term;
         } else {
-            _e( 'Undefined value', 'corder' );
+            echo "-";
         }
     }
 
@@ -213,12 +213,13 @@ class Corder
         $prefix = 'corder_client';
         $corder_client_name = get_post_meta($post->ID, '_'.$prefix.'_name', true);
         $corder_client_phone = get_post_meta($post->ID, '_'.$prefix.'_phone', true);
+        $corder_client_email = get_post_meta($post->ID, '_'.$prefix.'_email', true);
         $corder_client_town = get_post_meta($post->ID, '_'.$prefix.'_town', true);
         $corder_client_fulladdress = get_post_meta($post->ID, '_'.$prefix.'_full_address', true);
         $corder_client_delivery_type = get_post_meta($post->ID, '_'.$prefix.'_delivery_type', true);
         $corder_client_amount = get_post_meta($post->ID, '_'.$prefix.'_amount', true);
         $corder_client_comment = get_post_meta($post->ID, '_'.$prefix.'_comment', true);
-        $corder_client_price = get_post_meta($post->ID, '_'.$prefix.'_price', true);
+//        $corder_client_price = get_post_meta($post->ID, '_'.$prefix.'_price', true);
 
         // Echo out the field
         ?>
@@ -232,6 +233,11 @@ class Corder
             <p>
                 <label>Client Phone<br>
                     <input type="phone" name="corder_client_phone" class="widefat" value="<?php echo esc_attr($corder_client_phone); ?>">
+                </label>
+            </p>
+            <p>
+                <label>Client Email<br>
+                    <input type="phone" name="corder_client_email" class="widefat" value="<?php echo esc_attr($corder_client_email); ?>">
                 </label>
             </p>
             <p>
@@ -259,11 +265,11 @@ class Corder
                     <textarea name="corder_client_comment" class="widefat"><?php echo esc_attr($corder_client_comment); ?></textarea>
                 </label>
             </p>
-            <p>
-                <label>Price<br>
-                    <input type="text" name="corder_client_price" class="widefat" value="<?php echo esc_attr($corder_client_price); ?>">
-                </label>
-            </p>
+<!--            <p>-->
+<!--                <label>Price<br>-->
+<!--                    <input type="text" name="corder_client_price" class="widefat" value="--><?php //echo esc_attr($corder_client_price); ?><!--">-->
+<!--                </label>-->
+<!--            </p>-->
         </div>
     <?php
     }
@@ -288,10 +294,11 @@ class Corder
             $client = array(
                 '_'.$prefix.'name'          => isset($_POST[$prefix.'name']) ? $_POST[$prefix.'name'] : '',
                 '_'.$prefix.'phone'         => isset($_POST[$prefix.'phone']) ? $_POST[$prefix.'phone'] : '',
+                '_'.$prefix.'email'         => isset($_POST[$prefix.'email']) ? $_POST[$prefix.'email'] : '',
                 '_'.$prefix.'town'          => isset($_POST[$prefix.'town']) ? $_POST[$prefix.'town'] : '',
                 '_'.$prefix.'full_address'  => isset($_POST[$prefix.'full_address']) ? $_POST[$prefix.'full_address'] : '',
                 '_'.$prefix.'delivery_type' => isset($_POST[$prefix.'delivery_type']) ? $_POST[$prefix.'delivery_type'] : '',
-                '_'.$prefix.'price'         => 3500,
+                //'_'.$prefix.'price'         => 3500,
                 '_'.$prefix.'comment' => isset($_POST[$prefix.'comment']) ? $_POST[$prefix.'comment'] : '',
                 '_'.$prefix.'amount' => 1,
             );
@@ -321,11 +328,13 @@ class Corder
             <?php endif; ?>
             <?php wp_nonce_field(plugin_basename(__FILE__), 'corder_noncename'); ?>
             <label class="f-label">ФИО</label>
-            <input class="f-text" type="text" name="corder_client_name" placeholder="Иванова Мария Сергеевна">
+            <input class="f-text" required="required" type="text" name="corder_client_name" placeholder="Иванова Мария Сергеевна">
             <label class="f-label">Полный адрес (с индексом)</label>
-            <input class="f-text" type="text" name="corder_client_full_address" placeholder="142456, Москва, ул. Мира, д. 3, кв. 11">
+            <input class="f-text" required="required" type="text" name="corder_client_full_address" placeholder="142456, Москва, ул. Мира, д. 3, кв. 11">
+            <label class="f-label">Email</label>
+            <input class="f-text" required="required" type="email" name="corder_client_email" placeholder="ivanova.maria@example.ru">
             <label class="f-label">Телефон</label>
-            <input class="f-text" type="text" name="corder_client_phone" placeholder="89123456789">
+            <input class="f-text" required="required" type="text" name="corder_client_phone" placeholder="89123456789">
             <label class="f-label">Комментарий</label>
             <input class="f-text" type="text" name="corder_client_comment" placeholder="">
             <p>
