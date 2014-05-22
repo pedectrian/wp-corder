@@ -328,6 +328,7 @@ class Corder
                     alert('Спасибо! Ваш заказ был принят. Мы свяжемся с вами в ближайшее время.');
                 </script>
             <?php endif; ?>
+            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
             <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.h5validate.js"></script>
             <script>
                 $(document).ready(function () {
@@ -336,7 +337,7 @@ class Corder
             </script>
             <?php wp_nonce_field(plugin_basename(__FILE__), 'corder_noncename'); ?>
             <label class="f-label">ФИО</label>
-            <input class="f-text" required="required" type="text" name="corder_client_name" placeholder="Иванова Мария Сергеевна">
+            <input class="f-text" title="Your name is required." required="required" type="text" name="corder_client_name" placeholder="Иванова Мария Сергеевна">
             <label class="f-label">Полный адрес (с индексом)</label>
             <input class="f-text" required="required" type="text" name="corder_client_full_address" placeholder="142456, Москва, ул. Мира, д. 3, кв. 11">
             <label class="f-label">Email</label>
