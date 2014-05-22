@@ -315,6 +315,8 @@ class Corder
             update_option( 'order_id', $order_id );
 
             wp_mail( 'info@hair-remover-shop.ru', 'Новый заказ №' . ($order_id), 'На сайте создан новый заказ' );
+
+
         }
 
         ?>
@@ -326,6 +328,12 @@ class Corder
                     alert('Спасибо! Ваш заказ был принят. Мы свяжемся с вами в ближайшее время.');
                 </script>
             <?php endif; ?>
+            <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.h5validate.js"></script>
+            <script>
+                $(document).ready(function () {
+                    $('.client-order-form').h5Validate();
+                });
+            </script>
             <?php wp_nonce_field(plugin_basename(__FILE__), 'corder_noncename'); ?>
             <label class="f-label">ФИО</label>
             <input class="f-text" required="required" type="text" name="corder_client_name" placeholder="Иванова Мария Сергеевна">
